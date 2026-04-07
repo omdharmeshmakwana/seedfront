@@ -220,8 +220,11 @@ export default function GeneratePage() {
       toast.success('Video generation started!');
       navigate(`/generation/${generation.id}`);
     } catch (err) {
-      const msg = err.response?.data?.error || err.response?.data?.message || 'Failed to start generation';
-      toast.error(msg);
+      let msg = err.response?.data?.error || err.response?.data?.message || 'Failed to start generation';
+      if (typeof msg === 'object') {
+        msg = msg.message || msg.error || JSON.stringify(msg);
+      }
+      toast.error(String(msg));
     } finally {
       setLoading(false);
     }
