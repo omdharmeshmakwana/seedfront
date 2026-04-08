@@ -143,22 +143,24 @@ export default function GenerationDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Video player or loading */}
           <div className="glass-card overflow-hidden">
-            {gen.status === 'COMPLETED' && gen.videoPath ? (
+            {gen.status === 'COMPLETED' && Array.isArray(gen.outputUrls) && gen.outputUrls.length > 0 ? (
               <div>
                 <video
-                  key={gen.videoPath}
+                  key={gen.outputUrls[0]}
                   controls
                   className="w-full rounded-t-2xl bg-black"
                   preload="metadata"
                 >
-                  <source src={`/videos/${gen.videoPath}`} type="video/mp4" />
+                  <source src={gen.outputUrls[0]} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
                 <div className="p-4 flex items-center justify-between">
                   <p className="text-sm text-dark-300">Video ready</p>
                   <a
-                    href={`/videos/${gen.videoPath}`}
+                    href={gen.outputUrls[0]}
                     download
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="btn-glow py-2 px-4 text-sm flex items-center gap-2"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
