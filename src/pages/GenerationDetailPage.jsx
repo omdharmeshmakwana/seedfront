@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { getGeneration, getStatus, retryGeneration, deleteGeneration } from '../services/api';
+import { getGeneration, getStatus, retryGeneration, deleteGeneration, rerunGeneration } from '../services/api';
 
 function StatusBadge({ status }) {
   const s = status?.toLowerCase() || 'pending';
@@ -14,7 +14,8 @@ export default function GenerationDetailPage() {
   const [gen, setGen] = useState(null);
   const [loading, setLoading] = useState(true);
   const [retrying, setRetrying] = useState(false);
-  const pollRef = useRef(null);
+  const [rerunning, setRerunning] = useState(false);
+  const pollRef = useRef(null);   
 
   // Fetch generation
   useEffect(() => {
@@ -75,6 +76,19 @@ export default function GenerationDetailPage() {
     }
   };
 
+  const handleRerun = async () => {
+    setRerunning(true);
+    try {
+      const newGen = await rerunGeneration(id);
+      toast.success('Rerun started! Redirecting to new generation...');
+      navigate(`/generation/${newGen.id}`);
+    } catch {
+      toast.error('Failed to rerun');
+    } finally {
+      setRerunning(false);
+    }
+  };
+
   const handleDelete = async () => {
     if (!confirm('Delete this generation?')) return;
     try {
@@ -123,12 +137,21 @@ export default function GenerationDetailPage() {
           {gen.status === 'FAILED' && (
             <button
               onClick={handleRetry}
-              disabled={retrying}
+              disabled={retrying || rerunning}
               className="px-4 py-2 rounded-lg text-sm font-medium bg-warning/15 text-warning border border-warning/30 hover:bg-warning/25 transition-all disabled:opacity-50"
             >
               {retrying ? 'Retrying...' : 'Retry'}
             </button>
           )}
+          
+          <button
+            onClick={handleRerun}
+            disabled={rerunning || retrying}
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-accent/15 text-accent border border-accent/30 hover:bg-accent/25 transition-all disabled:opacity-50"
+          >
+            {rerunning ? 'Rerunning...' : 'Rerun'}
+          </button>
+          
           <button
             onClick={handleDelete}
             className="px-4 py-2 rounded-lg text-sm font-medium bg-danger/15 text-danger border border-danger/30 hover:bg-danger/25 transition-all"
