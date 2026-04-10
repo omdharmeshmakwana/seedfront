@@ -55,6 +55,12 @@ export async function retryGeneration(id) {
   return res.data;
 }
 
+/** POST /api/rerun/:id */
+export async function rerunGeneration(id) {
+  const res = await api.post(`/rerun/${id}`);
+  return res.data;
+}
+
 /** DELETE /api/generation/:id */
 export async function deleteGeneration(id) {
   const res = await api.delete(`/generation/${id}`);
